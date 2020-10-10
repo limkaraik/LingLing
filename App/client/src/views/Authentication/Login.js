@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Button, Typography, Alert, Col,Row, Form,Input } from 'antd';
 import API from '../../Utils/baseUrl';
 import 'antd/dist/antd.css'; 
+
 const { Title } = Typography;
 
 
@@ -39,9 +40,9 @@ function Login(props) {
 
     return (
         <div>
-            <Row>
-            <Col span={12}>
-                Ling Ling Logo
+            <Row style={{marginTop:'20px'}}>
+            <Col span={12} style={{marginLeft:'20px'}}>
+                <img src={'./MOOZ.png'}/>
             </Col>
             <Col span={10}>
                 <Title level={2}>Login</Title>
