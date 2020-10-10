@@ -1,69 +1,76 @@
-import React , { useState } from 'react'
-import { Button, Typography, Alert, Col,Row, Form,Input } from 'antd';
+import React , { useState,useEffect } from 'react'
+import { Button, Typography,  Form,Input } from 'antd';
+import API from '../Utils/baseUrl';
+import Room from './Room/room'
 const { Title } = Typography;
 
 
 function Home(props) {
-    const [RoomPass, setRoomPass] = useState("");
-    const [EnterPass, setEnterPass] = useState("");
+    const [RoomName, setRoomName] = useState("");
+    const [User, setUser] = useState('');
+    const [OnRoom, setOnRoom] = useState(false);
 
-    const handleRoomChange = (event) =>{
-        setRoomPass(event.currentTarget.value)
+    useEffect(()=>{
+        handleAuth();
+    },[])
+
+    const quitCall = ()=>{
+        setOnRoom(false)
+        API.get(`api/meeting/exit?name=${RoomName}`)
     }
 
-    const handleEnterChange = (event) =>{
-        setEnterPass(event.currentTarget.value)
+    const handleAuth = ()=>{
+        API.get('api/user/auth').then((res) => {
+            const { success, name } = res.data;
+            if (success) {
+              setUser(name)
+            }
+            props.history.push('/')
+        });
+    }
+
+
+    const handleRoomChange = (event) =>{
+        setRoomName(event.currentTarget.value)
     }
 
     const handleCreateSubmit = ()=>{
-        props.history.push(`/room/${RoomPass}`);
+        setOnRoom(true)
+        API.get(`api/meeting/enter?name=${RoomName}`).then((res)=>{
+            const {success,id} = res.data
+            if (success){
+                API.get(`api/user/addMeeting?meetingId=${id}`)
+            }
+        })
     }
 
-    const handleEnterSubmit = ()=>{
-        props.history.push(`/room/${EnterPass}`);
-    }
     return (
         <div>
-            <Title level={2}>Create Room</Title>
+        {(OnRoom)? <Room name={User} room={RoomName} quit={quitCall}/>
+        :
+        <div>
+            <Title level={2}>Create or Enter Room</Title>
             <Form layout={'vertical'} size={'large'} >
                 <Form.Item
-                    label="Room Password"
+                    label="Room Name"
                     rules={[
                         {
                             required: true,
-                            message: 'Please input Room Password!',
+                            message: 'Please input Room Name!',
                         }
                     ]}
                 >
-                    <Input onChange={handleRoomChange} value={RoomPass}/>
+                    <Input onChange={handleRoomChange} value={RoomName}/>
                 </Form.Item>
                 
                 <Form.Item >
                     <Button type="primary" htmlType="submit" onClick={handleCreateSubmit}>
-                        Create Room
+                        Create/Enter Room
                     </Button>
                 </Form.Item>
             </Form>
-            <Title level={2}>Enter Room</Title>
-            <Form layout={'vertical'} size={'large'} >
-                <Form.Item
-                    label="Room Password"
-                    rules={[
-                        {
-                            required: true,
-                            message: 'Please input Room Password!',
-                        }
-                    ]}
-                >
-                    <Input onChange={handleEnterChange} value={EnterPass}/>
-                </Form.Item>
-                
-                <Form.Item >
-                    <Button type="primary" htmlType="submit" onClick={handleEnterSubmit}>
-                        Enter Room
-                    </Button>
-                </Form.Item>
-            </Form>
+        </div>
+        }
         </div>
     )
 }

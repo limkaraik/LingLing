@@ -15,6 +15,10 @@ const userSchema = mongoose.Schema({
         type: String,
         minlength: 5
     },
+    meeting:{
+        type: Array,
+        default:[]
+    },
     token: {
         type: String
     }

@@ -4,8 +4,9 @@ import Peer from "simple-peer";
 import styled from "styled-components";
 import {Button, Col, Row} from 'antd'
 import Chat from './chat'
+import API from '../../Utils/baseUrl'
 // import {addMeeting} from '../../../../_actions/user_actions'
-import {useDispatch} from 'react-redux'
+// import {useDispatch} from 'react-redux'
 
 const Video = styled.video`
   border: 8px solid white;
@@ -15,7 +16,8 @@ const Video = styled.video`
 
 
 function Room(props) {
-    const dispatch = useDispatch();
+    // const dispatch = useDispatch();
+
 
     const [yourID, setYourID] = useState("");
     const [users, setUsers] = useState({});
@@ -31,7 +33,8 @@ function Room(props) {
 
     useEffect(() => {
         socket.current = io.connect("http://localhost:5000");
-        socket.current.emit('userData', props.userData)
+        let userData = {name:props.name,room:props.room}
+        socket.current.emit('userData', userData)
         navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then(stream => {
           setStream(stream);
           if (userVideo.current) {
@@ -49,7 +52,13 @@ function Room(props) {
         
         socket.current.on("allUsers", (users) => {
           setUsers(users);
+        //   console.log('user',users)
         })
+
+        socket.current.on("dcUsers",(users)=>{
+            setUsers(users);
+        })
+    
     
         socket.current.on("hey", (data) => {
           setReceivingCall(true);
@@ -79,9 +88,9 @@ function Room(props) {
         setCallAccepted(true);
         peer.signal(signal);
     })
-
     }
 
+    
     function acceptCall() {
         setCallAccepted(true);
         const peer = new Peer({
@@ -107,13 +116,13 @@ function Room(props) {
     );
     }
 
-    let PartnerVideo;
-    if (callAccepted) {
-    PartnerVideo = (
-        <Video playsInline ref={partnerVideo} autoPlay />
-    );
+    // let PartnerVideo;
+    // if (callAccepted) {
+    // PartnerVideo = (
+    //     <Video playsInline ref={partnerVideo} autoPlay />
+    // );
     
-    }
+    // }
 
     let incomingCall;
     if (receivingCall) { 
@@ -135,12 +144,13 @@ function Room(props) {
     )
     }
     const endCall = ()=>{
-        
+        socket.current.close()
         setCallAccepted(false)
         setCaller("")
         setReceivingCall(false)
         setCallerSignal()
-        // dispatch(addMeeting(1))
+        socket.current.emit("disconnect",props.room)
+        props.quit()
     }
 
     const renderFriends = ()=>(
@@ -163,14 +173,16 @@ function Room(props) {
     return (
         <div>
             <div style ={{ textAlign: 'center'}}>
-                <h2>Welcome {props.userData.name}</h2>
+                <h2>Welcome {props.name} to {props.room}</h2>
             </div>
 
             <div style={{width:'100%', paddingTop:'25px'}}>
                 <div>
                     <Row>  
                         <Col span={8}>{UserVideo}</Col>
-                        <Col span={8}>{PartnerVideo}</Col>
+                        <Col span={8}>{callAccepted && (Object.keys(users).length>1) &&
+                            <Video playsInline ref={partnerVideo} autoPlay />
+                        }</Col>
                         <Col span={8}>
                             {
                                 callAccepted ? <Chat name={users[yourID] && users[yourID].name}/>

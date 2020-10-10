@@ -12,9 +12,10 @@ function Register(props) {
     const [DifferentPassword, setDifferentPassword] = useState(true);
     const [StrongPassword, setStrongPassword] = useState(false);
     const [EmailExist, setEmailExist] = useState(false);
+    const [Name, setName] = useState('');
 
     const handleSubmit = ()=>{
-        let data = {email:Email, password: Password};
+        let data = {name:Name, email:Email, password: Password};
         API.post('api/user/register',data).then(res=>{
             const success = res.data.success;
             if (success){
@@ -40,6 +41,10 @@ function Register(props) {
         setEmail(event.currentTarget.value)
     }
 
+    const handleNameChange = (event) =>{
+        setName(event.currentTarget.value)
+    }
+
     const handlePasswordChange = (event)=>{
         setPassword(event.currentTarget.value);
         setStrongPassword(isStrongPassword(event.currentTarget.value));
@@ -56,9 +61,9 @@ function Register(props) {
 
     return (
         <div>
-            <Row>
-            <Col span={12}>
-                Ling Ling Logo
+            <Row style={{marginTop:'20px'}}>
+            <Col span={12} style={{marginLeft:'20px'}}>
+                <img src={'./MOOZ.png'}/>
             </Col>
             <Col span={10}>
                 <Title level={2}>Sign Up</Title>
@@ -73,6 +78,17 @@ function Register(props) {
                         ]}
                     >
                         <Input onChange={handleEmailChange} value={Email}/>
+                    </Form.Item>
+                    <Form.Item
+                        label="Name"
+                        rules={[
+                            {
+                                required: true,
+                                message: 'Please input your Name!',
+                            }
+                        ]}
+                    >
+                        <Input onChange={handleNameChange} value={Name}/>
                     </Form.Item>
                     <Form.Item
                         label="Password"
@@ -111,7 +127,7 @@ function Register(props) {
                             Sign Up
                         </Button>
                     </Form.Item>
-                    <div style={{marginTop:'115px', top:'70%',position:'absolute', right:'18%', color:'#75787b'}}>
+                    <div style={{marginTop:'130px', top:'70%',position:'absolute', right:'18%', color:'#75787b'}}>
                         Already have an account?
                         <Button type="link" onClick={handleLogin} style={{marginLeft:'-10px'}}>
                             Login
