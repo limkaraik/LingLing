@@ -73,4 +73,24 @@ router.get('/logout', auth, (req, res) => {
     });
 });
 
+//?meetingId={meetingId}
+router.get('/addMeeting',auth,(req,res)=>{
+    let meetingId = req.query.meetingId;
+    User.findOneAndUpdate(
+        {_id:req.user._id},
+        {
+            $push :{
+                meeting:meetingId
+            }
+        },
+        {new: true},
+        (err,userInfo) =>{
+            if (err) return res.status(400).json({success:false, err});
+            return res.status(200).json({success:true})
+        }
+    )
+})
+
+
+
 module.exports = router;
