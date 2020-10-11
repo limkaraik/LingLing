@@ -3,6 +3,7 @@ const router = express.Router();
 const {User} = require('../models/User');
 const {auth} = require('../middleware/auth')
 const {Meeting} = require('../models/Meeting');
+const {fileUpload} = require('../utils/fileUpload')
 
 router.post('/getAll', auth, async (req, res) => {
     let order = req.body.order ? req.body.order : 'desc';
@@ -98,4 +99,16 @@ router.get('/exit',async(req,res)=>{
     }
     
 })
+
+
+router.post('/upload',auth,fileUpload,(req,res)=>{
+  Meeting.findOneAndUpdate({_id:req.body.meetingId},{audio:req.files[0].path},(err,doc)=>{
+    if (err) return res.json({ success: false, err });
+    return res.status(200).send({
+      success: true,
+      audio: req.files[0].path,
+    });
+  })
+})
+
 module.exports = router;

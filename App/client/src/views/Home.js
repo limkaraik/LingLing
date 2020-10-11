@@ -9,6 +9,7 @@ function Home(props) {
     const [RoomName, setRoomName] = useState("");
     const [User, setUser] = useState('');
     const [OnRoom, setOnRoom] = useState(false);
+    const [MeetingId, setMeetingId] = useState('');
 
     useEffect(()=>{
         handleAuth();
@@ -41,6 +42,7 @@ function Home(props) {
         API.get(`api/meeting/enter?name=${RoomName}`).then((res)=>{
             const {success,id} = res.data
             if (success){
+                setMeetingId(id)
                 API.get(`api/user/addMeeting?meetingId=${id}`)
             }
         })
@@ -48,7 +50,7 @@ function Home(props) {
 
     return (
         <div>
-        {(OnRoom)? <Room name={User} room={RoomName} quit={quitCall}/>
+        {(OnRoom)? <Room name={User} room={RoomName} meetingId={MeetingId} quit={quitCall}/>
         :
         <div>
             <Title level={2}>Create or Enter Room</Title>
