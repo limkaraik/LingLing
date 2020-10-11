@@ -25,7 +25,9 @@ function Home(props) {
             if (success) {
               setUser(name)
             }
-            props.history.push('/')
+            else{
+                props.history.push('/login')
+            }
         });
     }
 

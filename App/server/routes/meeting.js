@@ -10,6 +10,7 @@ router.post('/getAll', auth, async (req, res) => {
     let user = await User.findById(req.user._id)
     if (!user) return res.json({success:false,message:'User not found'})
     let meeting = user.meeting
+    console.log(meeting)
     let findArgs = { _id:'',onGoing:false};
     let term = req.body.searchTerm;
     for (let key in req.body.filters) {
@@ -23,21 +24,24 @@ router.post('/getAll', auth, async (req, res) => {
       }
     }
     let meetings = []
-    for (var i= 0;i<meeting.length;i++){
+    for (const [key, value] of Object.entries(meeting)){
        
-        findArgs['_id'] = meeting[i]
-        console.log(findArgs)
-        
+        findArgs['_id'] = key    
         try{
             if (term) {
                 let m = await Meeting.find(findArgs)
                   .find({ $text: { $search: term } })
                   .sort([[sortBy, order]]);
-                meetings.push(m)
+                m.map((val,i)=>{
+                  meetings.push(val)
+                })
+                
               } else {
                 let m = await Meeting.find(findArgs)
                   .sort([[sortBy, order]])
-                meetings.push(m)
+                m.map((val,i)=>{
+                  meetings.push(val)
+                })
               }
 
         }catch(err){
@@ -46,7 +50,7 @@ router.post('/getAll', auth, async (req, res) => {
         
     }
   
-    res.json({meetings:meetings})
+    res.json({meetings:meetings,success:true})
   });
 
 //?name={name}
@@ -83,7 +87,6 @@ router.get('/exit',async(req,res)=>{
             og = false
         }else{og = true}
         try{
-            console.log(num,og)
             await Meeting.findOneAndUpdate({onGoing:true,name:name},{onGoing:og,numUsers: num-1})
             res.status(200).json({success:true})
         }catch(err){

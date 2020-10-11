@@ -74,21 +74,29 @@ router.get('/logout', auth, (req, res) => {
 });
 
 //?meetingId={meetingId}
-router.get('/addMeeting',auth,(req,res)=>{
+router.get('/addMeeting',auth,async(req,res)=>{
     let meetingId = req.query.meetingId;
-    User.findOneAndUpdate(
-        {_id:req.user._id},
-        {
-            $push :{
-                meeting:meetingId
-            }
-        },
-        {new: true},
-        (err,userInfo) =>{
-            if (err) return res.status(400).json({success:false, err});
-            return res.status(200).json({success:true})
+    let user = await User.findById(req.user._id)
+    if (user){
+        var pair = user.meeting
+        pair[meetingId]='0'
+        await User.findByIdAndUpdate(
+            req.user._id,
+            {
+                $set :{
+                    meeting:pair
+                }
+            },
+            {new: true},
+            (err,userInfo) =>{
+                if (err) return res.status(400).json({success:false, err});
+                return res.status(200).json({success:true})
         }
     )
+    }else {
+        return res.status(400).json({success:false, err});
+    }
+    
 })
 
 
