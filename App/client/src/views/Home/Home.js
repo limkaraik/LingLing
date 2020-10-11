@@ -10,6 +10,7 @@ function Home(props) {
     const [RoomName, setRoomName] = useState("");
     const [User, setUser] = useState('');
     const [OnRoom, setOnRoom] = useState(false);
+    const [MeetingId, setMeetingId] = useState('');
 
     useEffect(()=>{
         handleAuth();
@@ -26,7 +27,9 @@ function Home(props) {
             if (success) {
               setUser(name)
             }
-            props.history.push('/')
+            else{
+                props.history.push('/login')
+            }
         });
     }
 
@@ -40,6 +43,7 @@ function Home(props) {
         API.get(`api/meeting/enter?name=${RoomName}`).then((res)=>{
             const {success,id} = res.data
             if (success){
+                setMeetingId(id)
                 API.get(`api/user/addMeeting?meetingId=${id}`)
             }
         })
