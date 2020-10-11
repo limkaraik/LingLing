@@ -1,9 +1,21 @@
 const express = require('express');
 const morgan = require('morgan');
+const socketio = require('socket.io');
+const http = require('http');
 const app = express();
 const cookieParser = require('cookie-parser');
+const server = http.createServer(app);
+const io = socketio(server);
 
 require('dotenv').config();
+
+//socket connection
+io.on('connection', (socket) => {
+  console.log('New Connection');
+  socket.on('disconnect', () => {
+    console.log('User has left');
+  })
+});
 
 //Connect MongoDB
 const mongoose = require('mongoose');
