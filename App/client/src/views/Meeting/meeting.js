@@ -1,10 +1,24 @@
-import React from "react";
+import React,{useEffect,useState} from "react";
 import { Typography, Row } from "antd";
 import MEETINGS_DATA from "../MeetingHistory/MeetingHistoryData";
+import API from '../../Utils/baseUrl';
 const { Title } = Typography;
 const { Text } = Typography;
 
-function Meeting() {
+function Meeting(props) {
+  const meetingId = props.match.params.meetingId
+  const [Meeting, setMeeting] = useState({});
+
+  useEffect(()=>{
+    API.get(`api/meeting/get?id=${meetingId}`).then((res)=>{
+      const {success, meeting} = res.data;
+      if (success){
+        setMeeting(meeting)
+      }
+    })
+
+  },[])
+
   return (
     <div style={{ width: "75%", margin: "auto" }}>
       <div
@@ -54,14 +68,10 @@ function Meeting() {
           }}
         >
           <Title level={4}>Messages</Title>
-          {MEETINGS_DATA[0].transcript.map((transcript, index) => {
-            return (
-              <Text>
-                {transcript}
-                <br />
-              </Text>
-            );
-          })}
+            <Text>
+              {Meeting.content}
+              <br />
+            </Text>
         </div>
       </div>
     </div>

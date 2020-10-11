@@ -19,7 +19,7 @@ function App() {
         <Switch>
         <Route path="/login" component={NavBar} />
         <Route path="/signup" component={NavBar} />
-        <Route path="/meeting" component={NavBarAuth} />
+        <Route path="/meeting/:meetingId" component={NavBarAuth} />
         <Route path="/meetinghistory" component={NavBarAuth} />
         <Route path="/" component={NavBarAuth} />
         </Switch>
@@ -29,7 +29,7 @@ function App() {
         <Switch>
           <Route path="/login" component={Login} />
           <Route path="/signup" component={Register} />
-          <Route path="/meeting" component={Meeting} />
+          <Route path="/meeting/:meetingId" component={Meeting} />
           <Route path="/meetinghistory" component={MeetingHistory} />
           <Route path="/" component={Home} />
         </Switch>

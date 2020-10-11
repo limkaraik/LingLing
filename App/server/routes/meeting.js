@@ -4,6 +4,9 @@ const {User} = require('../models/User');
 const {auth} = require('../middleware/auth')
 const {Meeting} = require('../models/Meeting');
 const {fileUpload} = require('../utils/fileUpload')
+const speech = require('@google-cloud/speech');
+const fs = require('fs');
+const mongoose = require('mongoose');
 
 router.post('/getAll', auth, async (req, res) => {
     let order = req.body.order ? req.body.order : 'desc';
@@ -100,15 +103,52 @@ router.get('/exit',async(req,res)=>{
     
 })
 
+//?id=${meetingId}
+router.get('/get', async(req,res)=>{
+  let meetingId= req.query.id;
+  if (mongoose.isValidObjectId(meetingId)) {
+    const meeting = await Meeting.findOne({ _id: meetingId });
+    if (!meeting) return res.json({ success: false });
+    return res.status(200).json({ success: true, meeting: meeting });
+  } else return res.json({ success: false });
+})
 
-router.post('/upload',auth,fileUpload,(req,res)=>{
-  Meeting.findOneAndUpdate({_id:req.body.meetingId},{audio:req.files[0].path},(err,doc)=>{
-    if (err) return res.json({ success: false, err });
+
+router.post('/upload',auth,fileUpload,async(req,res)=>{
+  
+    const client = new speech.SpeechClient();
+    const fileName = `C:/Users/limka/OneDrive/Documents/NTU/Y3S1/CZ3002 ASE/app/LingLing/App/server/${req.files[0].path}`
+    // Reads a local audio file and converts it to base64
+    const file = fs.readFileSync(fileName);
+    const audioBytes = file.toString('base64');
+  
+    // The audio file's encoding, sample rate in hertz, and BCP-47 language code
+    const audio = {
+      content: audioBytes,
+    };
+    const config = {
+      encoding: 'LINEAR16',
+      audioChannelCount:2,
+      enableSeparateRecognitionPerChannel: true,
+      languageCode: 'en-US',
+    };
+    const request = {
+      audio: audio,
+      config: config,
+    };
+
+    // Detects speech in the audio file
+    const [response] = await client.recognize(request);
+    const transcription = response.results.map(result => result.alternatives[0].transcript).join('\n');
+    console.log(`Transcription: ${transcription}`);
+    Meeting.findOneAndUpdate({_id:req.body.meetingId},{content:transcription},(err,doc)=>{
+      if (err) return res.json({ success: false, err });
+    })
     return res.status(200).send({
       success: true,
       audio: req.files[0].path,
     });
-  })
+  
 })
 
 module.exports = router;

@@ -4,18 +4,7 @@ const MEETINGS_DATA = [
     title: "10 May Meeting",
     description: "Time: 08:10",
     agenda: [
-      "Marketing Strategy",
-      "Sales Target",
-      "Review Production Date",
-      "Execute Project Prometheus",
-      "Marketing Strategy",
-      "Sales Target",
-      "Review Production Date",
-      "Execute Project Prometheus",
-      "Marketing Strategy",
-      "Sales Target",
-      "Review Production Date",
-      "Execute Project Prometheus",
+      "Advance Software Engineering"
     ],
     transcript: [
       "KarAik: Prof Althea is the best",

@@ -101,7 +101,7 @@ function MeetingHistory(props) {
                   style={{ margin: "1rem" }}
                   cover={
                     <a
-                      href={"/Meeting"}
+                      href={`/Meeting/${meeting._id}`}
                       style={{
                         backgroundColor: "grey",
                       }}

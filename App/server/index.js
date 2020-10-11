@@ -56,6 +56,7 @@ io.on('connection', socket => {
           sameRoom[key] = value
         }
      }
+      socket.join(room)
       // console.log(sameRoom)
       io.sockets.emit("allUsers", sameRoom);
     })
@@ -83,6 +84,14 @@ io.on('connection', socket => {
   socket.on("acceptCall", (data) => {
       io.to(data.to).emit('callAccepted', data.signal);
   })
+
+  // Listen for chatMessage
+  socket.on('sendMessage', ({msg,room}) => {
+    let u = users[socket.id].name
+    let data = { text:msg,user:u}
+    io.to(room).emit('message', data);
+  });
+
 });
 
 const port = process.env.PORT;

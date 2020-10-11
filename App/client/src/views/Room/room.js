@@ -4,8 +4,14 @@ import io from "socket.io-client";
 import Peer from "simple-peer";
 import styled from "styled-components";
 import {Button, Col, Row} from 'antd'
-import Chat from './chat'
+// import Chat from './chat'
 import API from '../../Utils/baseUrl'
+
+import Messages from './Messages/Messages';
+import InfoBar from './InfoBar/InfoBar'
+import Input from './Input/input'
+
+import './chat.css'
 
 const Video = styled.video`
   border: 8px solid white;
@@ -29,6 +35,8 @@ function Room(props) {
     const [caller, setCaller] = useState("");
     const [callerSignal, setCallerSignal] = useState();
     const [callAccepted, setCallAccepted] = useState(false);
+    const [message, setMessage] = useState('');
+    const [messages, setMessages] = useState([]);
 
     const userVideo = useRef();
     const partnerVideo = useRef();
@@ -71,19 +79,16 @@ function Room(props) {
         })
        
       }, []);
+////////////////////////////////////
+
+      useEffect(() => {
+        socket.current.on('message', message => {
+          setMessages(messages => [ ...messages, message ]);
+        });
+        
+    }, []);
 
 /////////// recording stuff    ///////////////////////////////////
-    // const startRecording = () => {
-    // navigator.mediaDevices.getUserMedia({ audio: true, video: true }).then(
-    //     function(stream) {
-    //     handleVideo(stream);
-    //     }
-    // ).catch(
-    //     function(error) {
-    //         console.log('video error', error);
-    //     }
-    //     )
-    // }
   
     const handleVideo = (stream) => {
         const video = document.getElementById('player');
@@ -92,8 +97,10 @@ function Room(props) {
         // video.srcObject = stream;
     
         recorder = new RecordRTC(stream, {
-          type: 'audio',
-          // mimeType: 'video/webm;codecs=vp9',
+            type:'audio',
+          mimeType: 'audio/wav',
+          recorderType: RecordRTC.StereoAudioRecorder,
+          
           video: {
             width: 240,
             height: 320,
@@ -215,6 +222,18 @@ function Room(props) {
         props.quit()
     }
     
+////////////////////////////////////////////////
+
+    const sendMessage = (event) => {
+        event.preventDefault();
+
+        if(message) {
+            let data = {msg:message,room:props.room}
+        socket.current.emit('sendMessage', data, () => setMessage(''));
+        }
+    }
+
+
     return (
         <div>
             <div style ={{ textAlign: 'center'}}>
@@ -229,8 +248,13 @@ function Room(props) {
                             <Video playsInline ref={partnerVideo} autoPlay />
                         }</Col>
                         <Col span={8}>
-                            <div>SHI MIN CHAT STUFF</div>
-                            <Chat name={users[yourID] && users[yourID].name}/> 
+                        <div className="outerContainer">
+                            <div className="container">
+                                <InfoBar room={props.room} />
+                                <Messages messages={messages} name={props.name} />
+                                <Input message={message} setMessage={setMessage} sendMessage={sendMessage} />
+                            </div>
+                            </div>
                         </Col>
                     </Row>
                     <div style = {{maxWidth: '700px', margin:'2rem auto'}}>
