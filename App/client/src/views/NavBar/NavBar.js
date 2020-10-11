@@ -27,14 +27,11 @@ const { Header, Content, Footer } = Layout;
       const { current } = this.state;
       return(
         <Menu onClick={this.handleClick} selectedKeys={[current]} theme="dark" mode="horizontal" >
-        <Menu.Item key="mainMenu" icon={<MailOutlined />}>
-            Navigation One
+        <Menu.Item key="Login" icon={<AppstoreOutlined />}>
+            Login<a href="/login"></a>
           </Menu.Item>
-          <Menu.Item key="video"  icon={<AppstoreOutlined />}>
-            Navigation Two
-          </Menu.Item>
-          <Menu.Item key="transcript"  icon={<AppstoreOutlined />}>
-            Navigation Three
+          <Menu.Item key="Sign up"  icon={<AppstoreOutlined />}>
+            Sign up<a href="/signup"></a>
           </Menu.Item>
         
           
