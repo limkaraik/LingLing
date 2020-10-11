@@ -1,0 +1,83 @@
+  
+.m-homepage {
+    height: 100vh;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .m-homepage-form {
+    padding: 50px;
+    border: 1px solid black;
+    border-radius: 4px;
+    width: 500px;
+    /* margin: auto; */
+    position: absolute;
+    top: 45%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+  
+  .m-homepage-circle-small {
+    display: inline-block;
+    height: 14px;
+    width: 14px;
+    border-radius: 20px;
+    background-color: #FF6600;
+  
+    margin-left: 10px;
+    margin-bottom: 2px;
+  }
+  
+  .m-homepage-circle1 {
+    position: absolute;
+    height: 570px;
+    width: 570px;
+    border-radius: 500px;
+    background-color: rgb(86, 0, 214, 0.55);
+    top: 0;
+    left: 0;
+    transform: translate(-125px, -175px);
+  }
+  
+  .m-homepage-circle1-2 {
+    position: absolute;
+    height: 300px;
+    width: 300px;
+    border-radius: 500px;
+    background-color: rgb(86, 0, 214, 0.55);
+    top: 0;
+    left: 0;
+    transform: translate(250px, -220px);
+  }
+  
+  .m-homepage-circle2 {
+    position: absolute;
+    height: 300px;
+    width: 300px;
+    border-radius: 500px;
+    background-color: rgb(86, 0, 214, 0.55);
+    top: 0;
+    right: 0;
+    transform: translate(-30px, -50px);
+  }
+  .m-homepage-circle3 {
+    position: absolute;
+    height: 250px;
+    width: 250px;
+    border-radius: 500px;
+    background-color: rgb(86, 0, 214, 0.55);
+    bottom: 0;
+    left: 0;
+    transform: translate(150px, -50px);
+  }
+  
+  .m-homepage-circle4 {
+    position: absolute;
+    height: 800px;
+    width: 800px;
+    border-radius: 500px;
+    background-color: rgb(86, 0, 214, 0.55);
+    bottom: 0;
+    right: 0;
+    transform: translate(125px, 465px);
+  }

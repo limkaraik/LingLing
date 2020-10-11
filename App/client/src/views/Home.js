@@ -2,6 +2,7 @@ import React , { useState,useEffect } from 'react'
 import { Button, Typography,  Form,Input } from 'antd';
 import API from '../Utils/baseUrl';
 import Room from './Room/room'
+import './Home.css';
 const { Title } = Typography;
 
 
@@ -52,27 +53,34 @@ function Home(props) {
         <div>
         {(OnRoom)? <Room name={User} room={RoomName} meetingId={MeetingId} quit={quitCall}/>
         :
-        <div>
+        <div className="m-homepage">
+            <div className="m-homepage-circle1" />
+            <div className="m-homepage-circle1-2" />
+            <div className="m-homepage-circle2" />
+            <div className="m-homepage-circle3" />
+            <div className="m-homepage-circle4" />
+            <div className="m-homepage-form">
             <Title level={2}>Create or Enter Room</Title>
-            <Form layout={'vertical'} size={'large'} >
-                <Form.Item
-                    label="Room Name"
-                    rules={[
-                        {
-                            required: true,
-                            message: 'Please input Room Name!',
-                        }
-                    ]}
-                >
-                    <Input onChange={handleRoomChange} value={RoomName}/>
-                </Form.Item>
-                
-                <Form.Item >
-                    <Button type="primary" htmlType="submit" onClick={handleCreateSubmit}>
-                        Create/Enter Room
-                    </Button>
-                </Form.Item>
-            </Form>
+                <Form layout={'vertical'} size={'large'} >
+                    <Form.Item
+                        label="Room Name"
+                        rules={[
+                            {
+                                required: true,
+                                message: 'Please input Room Name!',
+                            }
+                        ]}
+                    >
+                        <Input onChange={handleRoomChange} value={RoomName}/>
+                    </Form.Item>
+                    
+                    <Form.Item >
+                        <Button type="primary" htmlType="submit" onClick={handleCreateSubmit}>
+                            Create/Enter Room
+                        </Button>
+                    </Form.Item>
+                </Form>
+            </div>
         </div>
         }
         </div>
