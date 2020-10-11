@@ -10,14 +10,6 @@ require('dotenv').config();
 const server = http.createServer(app)
 const io = socket(server);
 
-// const formatMessage = require('./utils/message');
-// const {
-//   userJoin,
-//   getCurrentUser,
-//   userLeave,
-//   getRoomUsers
-// } = require('./utils/users');
-
 //Connect MongoDB
 const mongoose = require('mongoose');
 const connect = mongoose
@@ -46,79 +38,8 @@ app.use(cookieParser());
 app.use('/api/user', require('./routes/user'));
 app.use('/api/meeting',require('./routes/meeting'));
 
-
-// //socket
-// const appName = "MOOZ Bot";
-
-// // const users = {}; //for friends
-
-// io.on('connection', socket => {
-//     // if (!users[socket.id]) {  //for friends
-    
-//   //   socket.emit('init', socket.id)
-//   //   socket.on('userData', userData =>{
-//   //     users[socket.id] = {uid: userData._id, name: userData.name};
-//   //     io.sockets.emit("allUsers", users);
-//   //   })
-//   // }
-
-//   socket.on('joinRoom', ({ username, room }) => {
-//     const user = userJoin(socket.id, username, room);
-
-//     socket.join(user.room);
-
-//     // Welcome current user
-//     socket.emit('message', formatMessage(appName, 'Welcome to MOOZ!'));
-
-//     // Broadcast when a user connects
-//     socket.broadcast
-//       .to(user.room)
-//       .emit(
-//         'message',
-//         formatMessage(appName, `${user.username} has joined the chat`)
-//       );
-
-//     // Send users and room info
-//     io.to(user.room).emit('roomUsers', {
-//       room: user.room,
-//       users: getRoomUsers(user.room)
-//     });
-//   });
-
-//   socket.emit("yourID", socket.id);
-
-//   // Listen for chatMessage
-//   socket.on('chatMessage', msg => {
-//     const user = getCurrentUser(socket.id);
-
-//     io.to(user.room).emit('message', formatMessage(user.username, msg));
-//   });
-  
-//   socket.on('disconnect', () => {
-//       delete users[socket.id];
-//       const user = userLeave(socket.id);
-//       if (user) {
-//         io.to(user.room).emit(
-//           'message',
-//           formatMessage(appName, `${user.username} has left the chat`)
-//         );
-  
-//         // Send users and room info
-//         io.to(user.room).emit('roomUsers', {
-//           room: user.room,
-//           users: getRoomUsers(user.room)
-//         });
-//       }
-//   })
-
-//   socket.on("callUser", (data) => {
-//       io.to(data.userToCall).emit('hey', {signal: data.signalData, from: data.from});
-//   })
-
-//   socket.on("acceptCall", (data) => {
-//       io.to(data.to).emit('callAccepted', data.signal);
-//   })
-// });
+//to retrieve images
+app.use('/uploads', express.static('uploads'));
 
 const users = {};
 

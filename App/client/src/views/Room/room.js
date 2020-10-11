@@ -1,12 +1,11 @@
 import React, { useEffect, useState, useRef } from 'react';
+import RecordRTC from 'recordrtc'
 import io from "socket.io-client";
 import Peer from "simple-peer";
 import styled from "styled-components";
 import {Button, Col, Row} from 'antd'
 import Chat from './chat'
 import API from '../../Utils/baseUrl'
-// import {addMeeting} from '../../../../_actions/user_actions'
-// import {useDispatch} from 'react-redux'
 
 const Video = styled.video`
   border: 8px solid white;
@@ -16,8 +15,10 @@ const Video = styled.video`
 
 
 function Room(props) {
-    // const dispatch = useDispatch();
-
+    //record stuff
+    let recorder;
+    const [blob, setBlob] = useState({});
+    const [Recorder, setRecorder] = useState();
     const [Num, setNum] = useState(0);
     let num = 0;
     const [Can, setCan] = useState(true);
@@ -39,18 +40,17 @@ function Room(props) {
         socket.current.emit('userData', userData)
         navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then(stream => {
           setStream(stream);
+          handleVideo(stream);
           if (userVideo.current) {
             userVideo.current.srcObject = stream;
           }
+        }).catch(e=>{
+            console.log(e)
         })
 
         socket.current.on('init',  (id)=>{
             setYourID(id)
         })
-
-        // socket.current.on("yourID", (id) => {
-        //     setYourID(id);
-        // })
         
         socket.current.on("allUsers", (users) => {
           setUsers(users);
@@ -71,6 +71,68 @@ function Room(props) {
         })
        
       }, []);
+
+/////////// recording stuff    ///////////////////////////////////
+    // const startRecording = () => {
+    // navigator.mediaDevices.getUserMedia({ audio: true, video: true }).then(
+    //     function(stream) {
+    //     handleVideo(stream);
+    //     }
+    // ).catch(
+    //     function(error) {
+    //         console.log('video error', error);
+    //     }
+    //     )
+    // }
+  
+    const handleVideo = (stream) => {
+        const video = document.getElementById('player');
+        // video.muted = true;
+        // video.volume = 0;
+        // video.srcObject = stream;
+    
+        recorder = new RecordRTC(stream, {
+          type: 'audio',
+          // mimeType: 'video/webm;codecs=vp9',
+          video: {
+            width: 240,
+            height: 320,
+          },
+          canvas: {
+            width: 640,
+            height: 480, // video and canva width, height doesnt work
+          },
+        });
+        recorder.startRecording();
+        setRecorder(recorder)
+      }
+    
+   
+    
+    const stopRecording = () => {
+        Recorder.stopRecording(async () => {
+            const blob = await Recorder.getBlob();
+            var fileName = 'dope' + '.wav';
+            var file = new File([blob],fileName,{
+                type:'audio/wav'
+            })
+            sendAudio(file)
+            setBlob(blob);
+        });
+        
+    }
+
+    const sendAudio = (file)=>{
+        const config = {
+            header: { 'content-type': 'multipart/form-data' },
+          };
+        const formData = new FormData()
+        formData.append('files',file)
+        formData.append('meetingId',props.meetingId)
+        API.post('api/meeting/upload',formData,config).then((res)=>{
+            console.log(res)
+        }).catch(err=>{console.log('error sending audio')})
+    }
 
 /////////////////////////////////////////////////
     if (Num===2 && Object.keys(users).length===2 &&Can){
@@ -137,32 +199,13 @@ function Room(props) {
     }
 ////////////////////////////////////////////
 
-    // let incomingCall;
-    // if (receivingCall) { 
-    //     incomingCall = (
-    //         <div>
-    //             {
-    //                 callAccepted ? <br/> :
-    //                 <div style={{textAlign: 'center'}}>  
-    //                 <h1>{caller && users[caller].name} is calling you</h1>
-    //                 <Button 
-    //                 block
-    //                 type='primary'
-    //                 size='large'
-    //                 onClick={acceptCall}>Accept</Button>
-    //                 </div>
-    //             }
-            
-    //         </div>
-    //     )
-    // }
-
     if (receivingCall && callerSignal&& !callAccepted){
         acceptCall()
     }
 
 ////////////////////////////////////////////////////
     const endCall = ()=>{
+        stopRecording()
         socket.current.close()
         setCallAccepted(false)
         setCaller("")
@@ -171,23 +214,6 @@ function Room(props) {
         socket.current.emit("disconnect",props.room)
         props.quit()
     }
-
-    // const renderFriends = ()=>(
-    //     <div style={{justifyContent:'center'}}>
-    //         <h3 style={{textAlign:'center'}}><span>Friends List</span></h3>
-    //         {Object.keys(users).map(key => {
-    //             if (key === yourID) {
-    //                 return null;
-    //             }
-    //             else if (!callAccepted) return (
-    //             <div style={{justifyContent:'center', display:'flex'}}>
-    //                 <Button size='large' onClick={() => callPeer(key)}>Call {users[key].name}</Button>
-    //             </div>
-    //             );
-    //         })}
-    //     </div>
-    // )
-
     
     return (
         <div>

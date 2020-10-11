@@ -5,7 +5,7 @@ const meetingSchema = mongoose.Schema({
         type:String,
         maxlength:50
     },
-    
+    audio: String,
     content: {
         type: String
     },
