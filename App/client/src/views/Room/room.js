@@ -18,7 +18,9 @@ const Video = styled.video`
 function Room(props) {
     // const dispatch = useDispatch();
 
-
+    const [Num, setNum] = useState(0);
+    let num = 0;
+    const [Can, setCan] = useState(true);
     const [yourID, setYourID] = useState("");
     const [users, setUsers] = useState({});
     const [stream, setStream] = useState();
@@ -52,7 +54,9 @@ function Room(props) {
         
         socket.current.on("allUsers", (users) => {
           setUsers(users);
-        //   console.log('user',users)
+          num++
+          setNum(num)
+          
         })
 
         socket.current.on("dcUsers",(users)=>{
@@ -65,30 +69,44 @@ function Room(props) {
           setCaller(data.from);
           setCallerSignal(data.signal);
         })
+       
       }, []);
+
+/////////////////////////////////////////////////
+    if (Num===2 && Object.keys(users).length===2 &&Can){
+        setCan(false)
+        Object.keys(users).map(key => {
+        if (key !== yourID) {
+            callPeer(key)
+        }
+    })
+    }
+////////////////////////////////////////////////////////
     
     function callPeer(id) {
+        console.log('calling')
         const peer = new Peer({
             initiator: true,
             trickle: false,
             stream: stream,
-    });
+        });
 
-    peer.on("signal", data => {
-        socket.current.emit("callUser", { userToCall: id, signalData: data, from: yourID })
-    })
+        peer.on("signal", data => {
+            socket.current.emit("callUser", { userToCall: id, signalData: data, from: yourID })
+        })
+     
+        peer.on("stream", stream => {
+            if (partnerVideo.current) {
+            partnerVideo.current.srcObject = stream;
+            }
+        });
 
-    peer.on("stream", stream => {
-        if (partnerVideo.current) {
-        partnerVideo.current.srcObject = stream;
-        }
-    });
-
-    socket.current.on("callAccepted", signal => {
-        setCallAccepted(true);
-        peer.signal(signal);
-    })
+        socket.current.on("callAccepted", signal => {
+            setCallAccepted(true);
+            peer.signal(signal);
+        })
     }
+//////////////////////////////////////////////
 
     
     function acceptCall() {
@@ -97,52 +115,53 @@ function Room(props) {
             initiator: false,
             trickle: false,
             stream: stream,
-    });
-    peer.on("signal", data => {
-        socket.current.emit("acceptCall", { signal: data, to: caller })
-    })
-
-    peer.on("stream", stream => {
-        partnerVideo.current.srcObject = stream;
-    });
-
-    peer.signal(callerSignal);
-    }
-
-    let UserVideo;
-    if (stream) {
-    UserVideo = (
-        <Video playsInline muted ref={userVideo} autoPlay />
-    );
-    }
-
-    // let PartnerVideo;
-    // if (callAccepted) {
-    // PartnerVideo = (
-    //     <Video playsInline ref={partnerVideo} autoPlay />
-    // );
+        });
+        peer.on("signal", data => {
     
+            console.log('caller',caller)
+            socket.current.emit("acceptCall", { signal: data, to: caller })
+        })
+
+        peer.on("stream", stream => {
+            partnerVideo.current.srcObject = stream;
+        });
+        console.log('callerSignal',callerSignal)
+        peer.signal(callerSignal);
+        }
+
+        let UserVideo;
+        if (stream) {
+        UserVideo = (
+            <Video playsInline muted ref={userVideo} autoPlay />
+        );
+    }
+////////////////////////////////////////////
+
+    // let incomingCall;
+    // if (receivingCall) { 
+    //     incomingCall = (
+    //         <div>
+    //             {
+    //                 callAccepted ? <br/> :
+    //                 <div style={{textAlign: 'center'}}>  
+    //                 <h1>{caller && users[caller].name} is calling you</h1>
+    //                 <Button 
+    //                 block
+    //                 type='primary'
+    //                 size='large'
+    //                 onClick={acceptCall}>Accept</Button>
+    //                 </div>
+    //             }
+            
+    //         </div>
+    //     )
     // }
 
-    let incomingCall;
-    if (receivingCall) { 
-    incomingCall = (
-        <div>
-            {
-                callAccepted ? <br/> :
-                <div style={{textAlign: 'center'}}>  
-                <h1>{caller && users[caller].name} is calling you</h1>
-                <Button 
-                block
-                type='primary'
-                size='large'
-                onClick={acceptCall}>Accept</Button>
-                </div>
-            }
-        
-        </div>
-    )
+    if (receivingCall && callerSignal&& !callAccepted){
+        acceptCall()
     }
+
+////////////////////////////////////////////////////
     const endCall = ()=>{
         socket.current.close()
         setCallAccepted(false)
@@ -153,21 +172,21 @@ function Room(props) {
         props.quit()
     }
 
-    const renderFriends = ()=>(
-        <div style={{justifyContent:'center'}}>
-            <h3 style={{textAlign:'center'}}><span>Friends List</span></h3>
-            {Object.keys(users).map(key => {
-                if (key === yourID) {
-                    return null;
-                }
-                else if (!callAccepted) return (
-                <div style={{justifyContent:'center', display:'flex'}}>
-                    <Button size='large' onClick={() => callPeer(key)}>Call {users[key].name}</Button>
-                </div>
-                );
-            })}
-        </div>
-    )
+    // const renderFriends = ()=>(
+    //     <div style={{justifyContent:'center'}}>
+    //         <h3 style={{textAlign:'center'}}><span>Friends List</span></h3>
+    //         {Object.keys(users).map(key => {
+    //             if (key === yourID) {
+    //                 return null;
+    //             }
+    //             else if (!callAccepted) return (
+    //             <div style={{justifyContent:'center', display:'flex'}}>
+    //                 <Button size='large' onClick={() => callPeer(key)}>Call {users[key].name}</Button>
+    //             </div>
+    //             );
+    //         })}
+    //     </div>
+    // )
 
     
     return (
@@ -184,24 +203,18 @@ function Room(props) {
                             <Video playsInline ref={partnerVideo} autoPlay />
                         }</Col>
                         <Col span={8}>
-                            {
-                                callAccepted ? <Chat name={users[yourID] && users[yourID].name}/>
-                                :
-                                renderFriends()
-                            }
-                            
+                            <div>SHI MIN CHAT STUFF</div>
+                            <Chat name={users[yourID] && users[yourID].name}/> 
                         </Col>
                     </Row>
                     <div style = {{maxWidth: '700px', margin:'2rem auto'}}>
-                        { callAccepted &&
                             <Button 
                             block
                             type='danger'
                             size='large'
                             shape='round'
                             onClick={endCall} >End Call</Button>
-                        }
-                        { (receivingCall && !callAccepted)&& incomingCall}
+                        {/* { (receivingCall && !callAccepted)&& incomingCall} */}
                     </div>
                 </div>
             </div>
