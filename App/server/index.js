@@ -4,11 +4,13 @@ const app = express();
 const cookieParser = require('cookie-parser');
 const http = require("http");
 const socket = require("socket.io");
+// const cors = require('cors')
 
 require('dotenv').config();
 
 const server = http.createServer(app)
 const io = socket(server);
+
 
 //Connect MongoDB
 const mongoose = require('mongoose');
@@ -23,11 +25,13 @@ const connect = mongoose
   .catch((err) => console.log(err));
 
 app.use(function (req, res, next) {
-  res.header('Access-Control-Allow-Origin', 'http://localhost:3000'); // update to match the domain you will make the request from
+  res.header('Access-Control-Allow-Origin',  req.headers.origin); // update to match the domain you will make the request from
   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
   res.header('Access-Control-Allow-Credentials', true);
   next();
 });
+
+// app.use(cors())
 
 app.use(morgan('combined'));
 app.use(express.json());

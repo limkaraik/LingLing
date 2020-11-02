@@ -17,7 +17,8 @@ const userSchema = mongoose.Schema({
     },
     meeting:{
         type: mongoose.Schema.Types.Mixed,
-        default:{}
+        default:{},
+        unique:0
     },
     token: {
         type: String

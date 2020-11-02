@@ -26,6 +26,7 @@ function Register(props) {
                     }
                 })
             }else {
+                console.log(res.data)
                 setEmailExist(true)
             }
         })

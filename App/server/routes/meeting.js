@@ -129,7 +129,6 @@ router.post('/upload',auth,fileUpload,async(req,res)=>{
     const config = {
       encoding: 'LINEAR16',
       audioChannelCount:2,
-      enableSeparateRecognitionPerChannel: true,
       languageCode: 'en-US',
     };
     const request = {

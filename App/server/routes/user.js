@@ -20,13 +20,14 @@ router.post('/register', async (req, res) => {
     const salt = await bcrypt.genSalt(saltRounds);
     const hashedPassword = await bcrypt.hash(req.body.password, salt);
     req.body.password = hashedPassword;
+    req.body.meeting = {0:0}
     const user = new User(req.body);
     //save to mongoDB
     try {
       await user.save();
       res.status(200).json({ success: true });
     } catch (err) {
-      res.json({success: false});
+      res.json({success: false, message:err});
     }
   });
 
